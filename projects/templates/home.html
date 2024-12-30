@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="display-4">Bienvenido a la App de Gestión de Proyectos</h1>
+    <p class="lead">Organiza tus proyectos, asigna tareas y lleva un seguimiento del progreso.</p>
+    <a href="{% url 'project_list' %}" class="btn btn-primary btn-lg">Ir a la lista de proyectos</a>
+</div>
+{% endblock %}

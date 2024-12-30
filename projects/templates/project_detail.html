@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ project.name }}</h1>
+<p>{{ project.description }}</p>
+<p><strong>Fecha Límite:</strong> {{ project.deadline|date:"d M Y" }}</p>
+<a href="{% url 'create_task' project.pk %}" class="btn btn-success">Nueva Tarea</a>
+
+<!-- Mostrar progreso -->
+<h2>Progreso del Proyecto</h2>
+<p>Progreso: {{ progress }}%</p>
+<p>Tareas completadas: {{ completed_tasks }} de {{ total_tasks }}</p>
+
+<!-- Barra de progreso -->
+<div style="border: 1px solid #000; width: 100%; height: 20px; background-color: #f0f0f0;">
+    <div style="width: {{ progress }}%; height: 100%; background-color: green;"></div>
+</div>
+<p class="text-center">{{ progress }}% Completado</p>
+
+<!-- Mostrar las tareas -->
+<h2>Tareas</h2>
+<ul class="list-group">
+    {% for task in tasks %}
+        <li class="list-group-item">
+            <strong>{{ task.title }}</strong>
+            <span class="badge {{ task.completed|yesno:'bg-success,bg-warning' }}">
+                {{ task.completed|yesno:'Completado,Pendiente' }}
+            </span>
+            <br>
+            <strong>Encargado:</strong> {{ task.assigned_to }}
+            <br>
+            <strong>Fecha de vencimiento:</strong> {{ task.due_date|date:"d M Y" }}
+            <br>
+            <strong>Descripción:</strong> {{ task.description }}
+            
+            <!-- Acciones: Finalizar y Eliminar -->
+            <div class="mt-2">
+                {% if not task.completed %}
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                        <button type="submit" name="complete_task" class="btn btn-sm btn-primary">Finalizar</button>
+                    </form>
+                {% endif %}
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="task_id" value="{{ task.id }}">
+                    <button type="submit" name="delete_task" class="btn btn-sm btn-danger">Eliminar</button>
+                </form>
+            </div>
+
+            <!-- Comentarios -->
+            <h4 class="mt-3">Comentarios</h4>
+            <ul>
+                {% for comment in task.comments.all %}
+                    <li>
+                        <strong>{{ comment.author }}</strong>: {{ comment.content }}
+                        <small>({{ comment.created_at|date:"d M Y" }})</small>
+                    </li>
+                {% empty %}
+                    <li>No hay comentarios aún.</li>
+                {% endfor %}
+            </ul>
+
+            <!-- Agregar comentario -->
+            <form method="post" class="mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="task_id" value="{{ task.id }}">
+                <input type="text" name="author" placeholder="Tu nombre" class="form-control mb-2" required>
+                <textarea name="content" placeholder="Escribe un comentario..." class="form-control mb-2" required></textarea>
+                <button type="submit" name="add_comment" class="btn btn-sm btn-secondary">Comentar</button>
+            </form>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No hay tareas aún.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
+
+{% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

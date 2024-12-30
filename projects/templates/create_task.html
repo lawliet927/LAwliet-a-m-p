@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Crear {{ project_name }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    
+    <!-- Campo para el nombre de la tarea -->
+    <div class="form-group">
+        <label for="title">Título de la tarea:</label>
+        <input type="text" id="title" name="title" placeholder="Título de la tarea" class="form-control mb-3" required>
+    </div>
+
+    <!-- Campo para la descripción -->
+    <div class="form-group">
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description" placeholder="Descripción de la tarea" class="form-control mb-3" required></textarea>
+    </div>
+
+    <!-- Campo para la fecha límite -->
+    <div class="form-group">
+        <label for="deadline">Fecha límite:</label>
+        <input type="date" id="deadline" name="deadline" class="form-control mb-3" required>
+    </div>
+
+    <!-- Campo para el nombre del encargado -->
+    <div class="form-group">
+        <label for="assigned_to">Nombre del encargado:</label>
+        <input type="text" id="assigned_to" name="assigned_to" placeholder="Nombre del encargado" class="form-control mb-3" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $("form").on("submit", function (e) {
+            let errorMessage = "";
+            let isValid = true;
+
+            // Validación de mayúsculas en título y descripción
+            $("input[name='title'], textarea[name='description']").each(function () {
+                if ($(this).val() && $(this).val() !== $(this).val().toUpperCase()) {
+                    isValid = false;
+                    errorMessage += $(this).attr("name") === 'title' ? "El título de la tarea debe estar en mayúsculas.<br>" : "La descripción debe estar en mayúsculas.<br>";
+                }
+            });
+
+            // Validación del nombre del encargado (debe tener letras mayúsculas, minúsculas y al menos un número)
+            var assignedTo = $("input[name='assigned_to']").val();
+            var nameRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/; // Expresión regular que verifica letras mayúsculas, minúsculas y números
+            if (!nameRegex.test(assignedTo)) {
+                errorMessage += "El nombre del encargado debe contener al menos una letra mayúscula, una minúscula y un número.<br>";
+                isValid = false;
+            }
+
+            // Validación de los campos obligatorios
+            if (!$("input[name='title']").val()) {
+                errorMessage += "El título de la tarea es obligatorio.<br>";
+                isValid = false;
+            }
+            if (!$("textarea[name='description']").val()) {
+                errorMessage += "La descripción de la tarea es obligatoria.<br>";
+                isValid = false;
+            }
+            if (!$("input[name='deadline']").val()) {
+                errorMessage += "La fecha límite de la tarea es obligatoria.<br>";
+                isValid = false;
+            }
+            if (!$("input[name='assigned_to']").val()) {
+                errorMessage += "El nombre del encargado es obligatorio.<br>";
+                isValid = false;
+            }
+
+            // Si hay errores, muestra el mensaje y previene el envío del formulario
+            if (!isValid) {
+                $(".alert").remove();  // Limpiar mensajes previos
+                $("form").before('<div class="alert alert-danger">' + errorMessage + '</div>');
+                e.preventDefault(); // Prevenir el envío del formulario
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+<script>
+    $(document).ready(function () {
+        $("form").on("submit", function (e) {
+            if ($(this).find("input, textarea").filter(function () { return this.value === ""; }).length > 0) {
+                alert("Todos los campos son obligatorios.");
+                e.preventDefault();
+            }
+        });
+    });
+</script> 
+{% endblock %}

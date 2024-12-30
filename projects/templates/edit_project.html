@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Editar Proyecto{% endblock %}
+{% block content %}
+<h1>Editar Proyecto</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="name" class="form-label">Nombre</label>
+        <input type="text" name="name" id="name" value="{{ project.name }}" class="form-control">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Descripción</label>
+        <textarea name="description" id="description" class="form-control">{{ project.description }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label for="deadline" class="form-label">Fecha de vencimiento</label>
+        <input type="date" name="deadline" id="deadline" value="{{ project.deadline }}" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function () {
+        $("form").on("submit", function (e) {
+            let errorMessage = "";
+            let isValid = true;
+
+            // Validación de mayúsculas
+            $("input[name='name'], textarea[name='description']").each(function () {
+                if ($(this).val() !== $(this).val().toUpperCase()) {
+                    isValid = false;
+                    errorMessage += $(this).attr("name") === 'name' ? "El nombre debe estar en mayúsculas.<br>" : "La descripción debe estar en mayúsculas.<br>";
+                }
+            });
+
+            // Validar que todos los campos estén completos
+            if (!$("input[name='name']").val()) {
+                errorMessage += "El nombre es obligatorio.<br>";
+                isValid = false;
+            }
+            if (!$("textarea[name='description']").val()) {
+                errorMessage += "La descripción es obligatoria.<br>";
+                isValid = false;
+            }
+            if (!$("input[name='deadline']").val()) {
+                errorMessage += "La fecha de entrega es obligatoria.<br>";
+                isValid = false;
+            }
+
+            // Si hay errores, muestra el mensaje y previene el envío del formulario
+            if (!isValid) {
+                $(".alert").remove();  // Limpiar mensajes previos
+                $("form").before('<div class="alert alert-danger">' + errorMessage + '</div>');
+                e.preventDefault(); // Prevenir el envío del formulario
+            }
+        });
+    });
+</script>
+{% endblock %}
+
