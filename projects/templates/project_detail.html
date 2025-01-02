@@ -42,7 +42,7 @@
                         <button type="submit" name="complete_task" class="btn btn-sm btn-primary">Finalizar</button>
                     </form>
                 {% endif %}
-                <form method="post" style="display:inline;">
+                <form method="post" style="display:inline;" onsubmit="return confirmDelete();">
                     {% csrf_token %}
                     <input type="hidden" name="task_id" value="{{ task.id }}">
                     <button type="submit" name="delete_task" class="btn btn-sm btn-danger">Eliminar</button>
@@ -90,3 +90,11 @@
         {% endfor %}
     </div>
 {% endif %}
+
+<script>
+    // Función de confirmación antes de eliminar una tarea
+    function confirmDelete() {
+        return confirm("¿Estás seguro de que deseas eliminar esta tarea?");
+    }
+</script>
+
